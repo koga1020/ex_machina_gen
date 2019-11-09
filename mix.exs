@@ -14,7 +14,7 @@ defmodule ExMachinaGen.MixProject do
       description: "additional mix task for ExMachina.",
       package: package(),
       source_url: @project_url,
-      homepage_url: @project_url,
+      homepage_url: @project_url
     ]
   end
 
@@ -31,7 +31,7 @@ defmodule ExMachinaGen.MixProject do
       {:credo, "~> 1.1.5", only: [:dev, :test], runtime: false},
       {:ecto, "~> 3.2.5", only: [:dev, :test], runtime: false},
       {:inflex, "~> 2.0.0", only: [:dev, :test], runtime: false},
-      {:ex_doc, ">= 0.0.0", only: :dev},
+      {:ex_doc, ">= 0.0.0", only: :dev}
     ]
   end
 
@@ -40,7 +40,7 @@ defmodule ExMachinaGen.MixProject do
       maintainers: ["koga1020"],
       licenses: ["MIT"],
       links: %{
-        "GitHub" => @project_url,
+        "GitHub" => @project_url
       }
     ]
   end
