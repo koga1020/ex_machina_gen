@@ -7,9 +7,10 @@ defmodule Mix.Tasks.ExMachina.Gen do
 
     fields = apply(schema_module, :__schema__, [:fields])
     [primary_key] = apply(schema_module, :__schema__, [:primary_key])
+    associations = apply(schema_module, :__schema__, [:associations])
 
     assoc_field_keys =
-      apply(schema_module, :__schema__, [:associations])
+      associations
       |> Enum.map(fn assoc_field ->
         apply(schema_module, :__schema__, [:association, assoc_field])
       end)
@@ -20,8 +21,11 @@ defmodule Mix.Tasks.ExMachina.Gen do
       |> List.delete(primary_key)
       |> Kernel.--(assoc_field_keys)
       |> to_attrs_map(schema_module)
+      |> put_assoc_build(schema_module, associations)
       |> inspect(pretty: true, width: :infinity)
       |> String.replace_leading("%{", "%#{schema_string}{")
+      |> String.replace(~r/"build\((.+)\)"/, "build(\\1)")
+      |> String.replace(~r/"\[build\((.+)\)\]"/, "[build(\\1)]")
 
     singular = apply(schema_module, :__schema__, [:source]) |> Inflex.singularize()
 
@@ -35,6 +39,44 @@ defmodule Mix.Tasks.ExMachina.Gen do
       "test/support/factory/#{singular}_factory.ex",
       EEx.eval_file("priv/templates/ex_machina.gen/factory.ex", binding)
     )
+  end
+
+  def put_assoc_build(attrs, schema_module, associations) do
+    build_fields =
+      associations
+      |> Enum.map(fn association ->
+        apply(schema_module, :__schema__, [:association, association])
+      end)
+      |> Enum.map(fn %{
+                       queryable: queryable,
+                       field: field,
+                       cardinality: cardinality
+                     } ->
+        Code.ensure_compiled?(queryable)
+        |> case do
+          true ->
+            factory_name =
+              apply(queryable, :__schema__, [:source])
+              |> Inflex.singularize()
+
+            {field, build_string(factory_name, cardinality)}
+
+          false ->
+            nil
+        end
+      end)
+      |> Enum.reject(&is_nil/1)
+      |> Enum.into(%{})
+
+    Map.merge(attrs, build_fields)
+  end
+
+  defp build_string(factory_name, :one) do
+    "build(:#{factory_name})"
+  end
+
+  defp build_string(factory_name, :many) do
+    "[build(:#{factory_name})]"
   end
 
   defp to_attrs_map(fields, schema_module) do
