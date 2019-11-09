@@ -11,7 +11,7 @@ defmodule ExMachinaGen.MixProject do
       start_permanent: Mix.env() == :prod,
       deps: deps(),
       name: "ExMachinaGen",
-      description: "additional generator mix task for ExMachina.",
+      description: "additional mix task for ExMachina.",
       package: package(),
       source_url: @project_url,
       homepage_url: @project_url,
