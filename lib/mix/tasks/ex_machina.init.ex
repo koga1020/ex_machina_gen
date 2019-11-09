@@ -22,9 +22,10 @@ defmodule Mix.Tasks.ExMachina.Init do
       ecto: ecto_option
     ]
 
-    Mix.Generator.create_file(
+    Mix.ExMachinaGen.create_file(
       "test/support/factory/factory.ex",
-      EEx.eval_file("priv/templates/ex_machina.init/factory.ex", binding)
+      "priv/templates/ex_machina.init/factory.ex",
+      binding
     )
   end
 end

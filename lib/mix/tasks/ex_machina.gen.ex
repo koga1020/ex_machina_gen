@@ -43,9 +43,10 @@ defmodule Mix.Tasks.ExMachina.Gen do
       struct_string: struct_string
     ]
 
-    Mix.Generator.create_file(
-      "test/support/factory/#{singular}_factory.ex",
-      EEx.eval_file("priv/templates/ex_machina.gen/factory.ex", binding)
+    Mix.ExMachinaGen.create_file(
+      "test/support/factory/factory.ex",
+      "priv/templates/ex_machina.gen/factory.ex",
+      binding
     )
   end
 
