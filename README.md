@@ -44,7 +44,7 @@ end
 
 ### Generate schema factory
 
-To generate factory of scehma, `ex_machina.gen <Schema Module>`.
+To generate factory of schema, `ex_machina.gen <schema module>`.
 
 ```
 $ mix ex_machina.gen MyApp.Blog.Post
@@ -61,9 +61,10 @@ defmodule MyApp.Blog.Post do
   schema "posts" do
     field :title, :string
     field :body, :string
+    field :draft, :boolean
     belongs_to :author, MyApp.Blog.User
 
-    timestamps()
+    timestamps(type: :utc_datetime)
   end
   ...
 ```
@@ -76,9 +77,12 @@ defmodule MyApp.Blog.PostFactory do
     quote do
       def post_factory do
         %MyApp.Blog.Post{
-          title: "test title",
+          author: build(:user),
           body: "test body",
-          author: build(:user)
+          draft: true,
+          inserted_at: ~U[2019-01-01 00:00:00Z],
+          title: "test title",
+          updated_at: ~U[2019-01-01 00:00:00Z]
         }
       end
     end
