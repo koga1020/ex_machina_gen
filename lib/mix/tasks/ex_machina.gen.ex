@@ -1,4 +1,12 @@
 defmodule Mix.Tasks.ExMachina.Gen do
+  @shortdoc "Generate factory from Ecto schema module"
+
+  @moduledoc """
+  Generate factory from Ecto schema module.
+
+      mix ex_machina.gen Blog.Post
+
+  """
   use Mix.Task
 
   def run(args) do
@@ -41,7 +49,7 @@ defmodule Mix.Tasks.ExMachina.Gen do
     )
   end
 
-  def put_assoc_build(attrs, schema_module, associations) do
+  defp put_assoc_build(attrs, schema_module, associations) do
     build_fields =
       associations
       |> Enum.map(fn association ->
@@ -93,9 +101,9 @@ defmodule Mix.Tasks.ExMachina.Gen do
   defp example_val(_, :boolean), do: true
   defp example_val(_, :utc_datetime), do: ~U[2019-01-01 00:00:00Z]
 
-  def validate_args([_] = args), do: args
+  defp validate_args([_] = args), do: args
 
-  def validate_args(_) do
+  defp validate_args(_) do
     Mix.raise("""
     Invalid arguments
 

@@ -1,4 +1,15 @@
 defmodule Mix.Tasks.ExMachina.Init do
+  @shortdoc "Generate factory from Ecto schema module"
+  @moduledoc """
+  Generate main factory file.
+
+      mix ex_machina.init
+
+  ## Options
+
+  * `--no-ecto` - use `Exmachina` without using `ExMachina.Ecto`
+
+  """
   use Mix.Task
 
   def run(args) do
