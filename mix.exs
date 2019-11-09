@@ -1,13 +1,20 @@
 defmodule ExMachinaGen.MixProject do
   use Mix.Project
 
+  @project_url "https://github.com/koga1020/ex_machina_gen"
+
   def project do
     [
       app: :ex_machina_gen,
       version: "0.1.0",
       elixir: "~> 1.8",
       start_permanent: Mix.env() == :prod,
-      deps: deps()
+      deps: deps(),
+      name: "ExMachinaGen",
+      description: "additional generator mix task for ExMachina.",
+      package: package(),
+      source_url: @project_url,
+      homepage_url: @project_url,
     ]
   end
 
@@ -21,8 +28,18 @@ defmodule ExMachinaGen.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      # {:dep_from_hexpm, "~> 0.3.0"},
-      # {:dep_from_git, git: "https://github.com/elixir-lang/my_dep.git", tag: "0.1.0"}
+      {:credo, "~> 1.1.5", only: [:dev, :test], runtime: false},
+      {:inflex, "~> 2.0.0"}
+    ]
+  end
+
+  defp package do
+    [
+      maintainers: ["koga1020"],
+      licenses: ["MIT"],
+      links: %{
+        "GitHub" => @project_url,
+      }
     ]
   end
 end
