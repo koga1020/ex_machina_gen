@@ -10,7 +10,7 @@ defmodule Mix.Tasks.ExMachina.Gen do
   use Mix.Task
 
   def run(args) do
-    Mix.Task.run "loadpaths"
+    Mix.Task.run("loadpaths")
 
     [schema_string] = validate_args(args)
     schema_module = Module.concat([Elixir, schema_string])
@@ -99,11 +99,24 @@ defmodule Mix.Tasks.ExMachina.Gen do
     |> Enum.into(%{})
   end
 
-  defp example_val(field, :string), do: "test #{field}"
-  defp example_val(_, :map), do: %{}
+  defp example_val(_, :id), do: 1
+  defp example_val(_, :binary_id), do: nil
+  defp example_val(_, :integer), do: 1
+  defp example_val(_, :float), do: 1.0
   defp example_val(_, :boolean), do: true
+  defp example_val(field, :string), do: "test #{field}"
+  defp example_val(_, :binary), do: nil
+  defp example_val(field, {:array, type}), do: [example_val(field, type)]
+  defp example_val(_, :map), do: %{}
+  defp example_val(_, {:map, _}), do: %{}
+  defp example_val(_, :decimal), do: Decimal.cast(1)
+  defp example_val(_, :date), do: ~D[2019-01-01]
+  defp example_val(_, :time), do: ~T[00:00:00]
+  defp example_val(_, :time_usec), do: ~T[00:00:00.000000]
   defp example_val(_, :utc_datetime), do: ~U[2019-01-01 00:00:00Z]
+  defp example_val(_, :utc_datetime_usec), do: ~U[2019-01-01 00:00:00.000000Z]
   defp example_val(_, :naive_datetime), do: ~N[2019-01-01 00:00:00]
+  defp example_val(_, :naive_datetime_usec), do: ~N[2019-01-01 00:00:00.000000]
 
   defp validate_args([_] = args), do: args
 
