@@ -89,3 +89,12 @@ defmodule MyApp.Blog.PostFactory do
   end
 end
 ```
+
+## Configuration
+
+If you change factory directory(default: `test/support/factory`), add `factory_dir` config.
+
+```elixir
+config :ex_machina_gen,
+  factory_dir: "test/factory"
+```
