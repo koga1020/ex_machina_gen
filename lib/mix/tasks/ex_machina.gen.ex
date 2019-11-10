@@ -47,7 +47,7 @@ defmodule Mix.Tasks.ExMachina.Gen do
       struct_string: struct_string
     ]
 
-    factory_file_path = "test/support/factory/#{singular}_factory.ex"
+    factory_file_path = ExMachinaGen.factory_file_path(singular)
 
     Mix.ExMachinaGen.create_file(
       factory_file_path,
@@ -69,19 +69,23 @@ defmodule Mix.Tasks.ExMachina.Gen do
     file = File.read!(main_factory_file_path)
     use_statement = "  use #{module}\n"
 
-    file
-    |> String.trim_trailing()
-    |> String.trim_trailing("end")
-    |> Kernel.<>(use_statement)
-    |> Kernel.<>("end\n")
-    |> write_file(main_factory_file_path)
+    if String.contains?(file, use_statement) do
+      :ok
+    else
+      file
+      |> String.trim_trailing()
+      |> String.trim_trailing("end")
+      |> Kernel.<>(use_statement)
+      |> Kernel.<>("end\n")
+      |> write_file(main_factory_file_path)
 
-    Mix.shell().info([
-      :green,
-      "* injecting ",
-      :reset,
-      Path.relative_to_cwd(main_factory_file_path)
-    ])
+      Mix.shell().info([
+        :green,
+        "* injecting ",
+        :reset,
+        Path.relative_to_cwd(main_factory_file_path)
+      ])
+    end
   end
 
   defp write_file(content, file) do
