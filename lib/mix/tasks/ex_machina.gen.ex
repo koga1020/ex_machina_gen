@@ -10,6 +10,8 @@ defmodule Mix.Tasks.ExMachina.Gen do
   use Mix.Task
 
   def run(args) do
+    Mix.Task.run "loadpaths"
+
     [schema_string] = validate_args(args)
     schema_module = Module.concat([Elixir, schema_string])
 
