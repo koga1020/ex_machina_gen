@@ -11,6 +11,7 @@ defmodule Mix.Tasks.ExMachina.Init do
 
   """
   use Mix.Task
+  alias Mix.ExMachinaGen
 
   def run(args) do
     {option, _, _} = OptionParser.parse(args, strict: [ecto: :boolean])
@@ -23,7 +24,7 @@ defmodule Mix.Tasks.ExMachina.Init do
     ]
 
     Mix.ExMachinaGen.create_file(
-      "test/support/factory/factory.ex",
+      ExMachinaGen.main_factory_file_path(),
       "priv/templates/ex_machina.init/factory.ex",
       binding
     )

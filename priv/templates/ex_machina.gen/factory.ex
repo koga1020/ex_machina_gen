@@ -1,4 +1,4 @@
-defmodule <%= module %>Factory do
+defmodule <%= module %> do
   defmacro __using__(_opts) do
     quote do
       def <%= singular %>_factory do

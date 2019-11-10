@@ -8,6 +8,7 @@ defmodule Mix.Tasks.ExMachina.Gen do
 
   """
   use Mix.Task
+  alias Mix.ExMachinaGen
 
   def run(args) do
     Mix.Task.run("loadpaths")
@@ -38,18 +39,53 @@ defmodule Mix.Tasks.ExMachina.Gen do
       |> String.replace(~r/"\[build\((.+)\)\]"/, "[build(\\1)]")
 
     singular = apply(schema_module, :__schema__, [:source]) |> Inflex.singularize()
+    module = "#{schema_string}Factory"
 
     binding = [
-      module: schema_string,
+      module: module,
       singular: singular,
       struct_string: struct_string
     ]
 
+    factory_file_path = "test/support/factory/#{singular}_factory.ex"
+
     Mix.ExMachinaGen.create_file(
-      "test/support/factory/#{singular}_factory.ex",
+      factory_file_path,
       "priv/templates/ex_machina.gen/factory.ex",
       binding
     )
+
+    inject_use_statement(module)
+    Mix.Task.run("format", [factory_file_path])
+  end
+
+  defp inject_use_statement(module) do
+    main_factory_file_path = ExMachinaGen.main_factory_file_path()
+
+    if !File.exists?(main_factory_file_path) do
+      Mix.Task.run("ex_machina.init")
+    end
+
+    file = File.read!(main_factory_file_path)
+    use_statement = "  use #{module}\n"
+
+    file
+    |> String.trim_trailing()
+    |> String.trim_trailing("end")
+    |> Kernel.<>(use_statement)
+    |> Kernel.<>("end\n")
+    |> write_file(main_factory_file_path)
+
+    Mix.shell().info([
+      :green,
+      "* injecting ",
+      :reset,
+      Path.relative_to_cwd(main_factory_file_path)
+    ])
+  end
+
+  defp write_file(content, file) do
+    File.write!(file, content)
   end
 
   defp put_assoc_build(attrs, schema_module, associations) do
