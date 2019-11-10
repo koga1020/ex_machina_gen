@@ -46,7 +46,7 @@ defmodule Mix.Tasks.ExMachina.Gen do
     ]
 
     Mix.ExMachinaGen.create_file(
-      "test/support/factory/factory.ex",
+      "test/support/factory/#{singular}_factory.ex",
       "priv/templates/ex_machina.gen/factory.ex",
       binding
     )
