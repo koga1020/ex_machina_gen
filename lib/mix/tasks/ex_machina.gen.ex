@@ -146,7 +146,7 @@ defmodule Mix.Tasks.ExMachina.Gen do
   defp example_val(_, :boolean), do: true
   defp example_val(field, :string), do: "test #{field}"
   defp example_val(_, :binary), do: nil
-  defp example_val(field, {:array, type}), do: [example_val(field, type)]
+  defp example_val(field, {:array, type}), do: [example_val(Inflex.singularize(field), type)]
   defp example_val(_, :map), do: %{}
   defp example_val(_, {:map, _}), do: %{}
   defp example_val(_, :decimal), do: Decimal.cast(1)
