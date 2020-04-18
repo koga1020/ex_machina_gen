@@ -95,12 +95,10 @@ defmodule Mix.Tasks.ExMachina.Gen do
       |> Enum.map(fn assoc_struct -> assoc_struct.owner_key end)
 
     fields
-    # |> List.delete(primary_key)
     |> Kernel.--(assoc_field_keys)
     |> to_attrs_map(schema_module)
     |> put_assoc_build(schema_module, associations)
     |> inspect(pretty: true, width: :infinity)
-    |> String.replace_leading("%{", "%#{schema_string}{")
     |> cleanup()
   end
 
@@ -204,14 +202,14 @@ defmodule Mix.Tasks.ExMachina.Gen do
   defp example_val(_, :naive_datetime_usec), do: ~N[2019-01-01 00:00:00.000000]
 
   defp example_val(_, {:embed, %Ecto.Embedded{cardinality: cardinality, related: schema}}) do
-    value =
-      process_embedded_schema(schema)
-      |> String.replace(~r/[^\{]+{(.*)\}$/, "%{\\1}")
+    value = process_embedded_schema(schema)
 
     case cardinality do
       :one -> value
       _ -> "[" <> value <> "]"
     end
+    |> Code.eval_string()
+    |> elem(0)
   end
 
   defp example_val(field, type) when is_atom(type) do

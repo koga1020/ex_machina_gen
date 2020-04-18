@@ -64,6 +64,10 @@ defmodule ExMachinaGenTest do
 
       embeds_one :one, One do
         field(:name, :string)
+
+        embeds_one :two, Two, primary_key: false do
+          field(:name, :string)
+        end
       end
 
       embeds_many(:many, Blog.Many)
@@ -121,7 +125,7 @@ defmodule ExMachinaGenTest do
       assert file =~ ~s(inserted_at: ~N[2019-01-01 00:00:00])
       assert file =~ ~s(updated_at: ~N[2019-01-01 00:00:00])
       assert file =~ ~s/user: build(:user)/
-      assert file =~ ~s/one: %{id: nil, name: "test name"}/
+      assert file =~ ~s/one: %{id: nil, name: "test name", two: %{name: "test name"}}/
       assert file =~ ~s/many: [%{id: 1, name: "test name"}]/
       assert file =~ ~s(custom: "test custom")
       assert file =~ ~s(custom_fail: nil)
