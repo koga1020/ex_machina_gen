@@ -13,6 +13,15 @@ defmodule ExMachinaGenTest do
     :ok
   end
 
+  defmodule Blog.Many do
+    use Ecto.Schema
+
+    @primary_key {:id, :id, []}
+    embedded_schema do
+      field(:name, :string)
+    end
+  end
+
   defmodule Blog.User do
     use Ecto.Schema
 
@@ -32,6 +41,13 @@ defmodule ExMachinaGenTest do
       field(:meta, :map)
       field(:order, :integer)
       belongs_to(:user, Blog.User)
+
+      embeds_one :one, One do
+        field(:name, :string)
+      end
+
+      embeds_many(:many, Blog.Many)
+
       timestamps()
     end
   end
@@ -82,6 +98,8 @@ defmodule ExMachinaGenTest do
       assert file =~ ~s(inserted_at: ~N[2019-01-01 00:00:00])
       assert file =~ ~s(updated_at: ~N[2019-01-01 00:00:00])
       assert file =~ ~s/user: build(:user)/
+      assert file =~ ~s/one: %{id: nil, name: "test name"}/
+      assert file =~ ~s/many: [%{id: 1, name: "test name"}]/
     end
   end
 end

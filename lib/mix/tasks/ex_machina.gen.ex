@@ -14,29 +14,8 @@ defmodule Mix.Tasks.ExMachina.Gen do
     Mix.Task.run("loadpaths")
 
     [schema_string] = validate_args(args)
-    schema_module = Module.concat([Elixir, schema_string])
 
-    fields = apply(schema_module, :__schema__, [:fields])
-    [primary_key] = apply(schema_module, :__schema__, [:primary_key])
-    associations = apply(schema_module, :__schema__, [:associations])
-
-    assoc_field_keys =
-      associations
-      |> Enum.map(fn assoc_field ->
-        apply(schema_module, :__schema__, [:association, assoc_field])
-      end)
-      |> Enum.map(fn assoc_struct -> assoc_struct.owner_key end)
-
-    struct_string =
-      fields
-      |> List.delete(primary_key)
-      |> Kernel.--(assoc_field_keys)
-      |> to_attrs_map(schema_module)
-      |> put_assoc_build(schema_module, associations)
-      |> inspect(pretty: true, width: :infinity)
-      |> String.replace_leading("%{", "%#{schema_string}{")
-      |> String.replace(~r/"build\(([^\)]+)\)"/, "build(\\1)")
-      |> String.replace(~r/"\[build\(([^\)]+)\)\]"/, "[build(\\1)]")
+    {schema_module, struct_string} = process_schema(schema_string)
 
     singular = apply(schema_module, :__schema__, [:source]) |> Inflex.singularize()
     module = "#{schema_string}Factory"
@@ -57,6 +36,72 @@ defmodule Mix.Tasks.ExMachina.Gen do
 
     inject_use_statement(module)
     Mix.Task.run("format", [factory_file_path])
+  end
+
+  defp process_schema(schema_string) do
+    schema_module = Module.concat([Elixir, schema_string])
+
+    fields = apply(schema_module, :__schema__, [:fields])
+
+    primary_key =
+      apply(schema_module, :__schema__, [:primary_key])
+      |> case do
+        [] -> nil
+        [pk] -> pk
+      end
+
+    associations = apply(schema_module, :__schema__, [:associations])
+
+    assoc_field_keys =
+      associations
+      |> Enum.map(fn assoc_field ->
+        apply(schema_module, :__schema__, [:association, assoc_field])
+      end)
+      |> Enum.map(fn assoc_struct -> assoc_struct.owner_key end)
+
+    struct_string =
+      fields
+      |> List.delete(primary_key)
+      |> Kernel.--(assoc_field_keys)
+      |> to_attrs_map(schema_module)
+      |> put_assoc_build(schema_module, associations)
+      |> inspect(pretty: true, width: :infinity)
+      |> String.replace_leading("%{", "%#{schema_string}{")
+      |> cleanup()
+
+    {schema_module, struct_string}
+  end
+
+  defp cleanup(str) do
+    str
+    |> String.replace(~r/"build\(([^\)]+)\)"/, "build(\\1)")
+    |> String.replace(~r/"\[build\(([^\)]+)\)\]"/, "[build(\\1)]")
+    |> String.replace(~r/"(\[?%\{[^\}]+\}\]?)"/, "\\1")
+    |> String.replace(~r/\\/, "")
+  end
+
+  defp process_embedded_schema(schema_string) do
+    schema_module = Module.concat([Elixir, schema_string])
+
+    fields = apply(schema_module, :__schema__, [:fields])
+
+    associations = apply(schema_module, :__schema__, [:associations])
+
+    assoc_field_keys =
+      associations
+      |> Enum.map(fn assoc_field ->
+        apply(schema_module, :__schema__, [:association, assoc_field])
+      end)
+      |> Enum.map(fn assoc_struct -> assoc_struct.owner_key end)
+
+    fields
+    # |> List.delete(primary_key)
+    |> Kernel.--(assoc_field_keys)
+    |> to_attrs_map(schema_module)
+    |> put_assoc_build(schema_module, associations)
+    |> inspect(pretty: true, width: :infinity)
+    |> String.replace_leading("%{", "%#{schema_string}{")
+    |> cleanup()
   end
 
   defp inject_use_statement(module) do
@@ -157,6 +202,17 @@ defmodule Mix.Tasks.ExMachina.Gen do
   defp example_val(_, :utc_datetime_usec), do: ~U[2019-01-01 00:00:00.000000Z]
   defp example_val(_, :naive_datetime), do: ~N[2019-01-01 00:00:00]
   defp example_val(_, :naive_datetime_usec), do: ~N[2019-01-01 00:00:00.000000]
+
+  defp example_val(_, {:embed, %Ecto.Embedded{cardinality: cardinality, related: schema}}) do
+    value =
+      process_embedded_schema(schema)
+      |> String.replace(~r/[^\{]+{(.*)\}$/, "%{\\1}")
+
+    case cardinality do
+      :one -> value
+      _ -> "[" <> value <> "]"
+    end
+  end
 
   defp validate_args([_] = args), do: args
 
