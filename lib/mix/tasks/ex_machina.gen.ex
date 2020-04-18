@@ -146,16 +146,16 @@ defmodule Mix.Tasks.ExMachina.Gen do
                        field: field,
                        cardinality: cardinality
                      } ->
-        Code.ensure_compiled?(queryable)
+        Code.ensure_compiled(queryable)
         |> case do
-          true ->
+          {:module, _} ->
             factory_name =
               apply(queryable, :__schema__, [:source])
               |> Inflex.singularize()
 
             {field, build_string(factory_name, cardinality)}
 
-          false ->
+          {:error, _} ->
             nil
         end
       end)
