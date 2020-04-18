@@ -13,7 +13,7 @@ defmodule Mix.Tasks.ExMachina.Init do
   use Mix.Task
   alias Mix.ExMachinaGen
 
-  def run(args) do
+  def run(args \\ []) do
     {option, _, _} = OptionParser.parse(args, strict: [ecto: :boolean])
 
     ecto_option = Keyword.get(option, :ecto, true)

@@ -106,7 +106,7 @@ defmodule Mix.Tasks.ExMachina.Gen do
     main_factory_file_path = ExMachinaGen.main_factory_file_path()
 
     if !File.exists?(main_factory_file_path) do
-      Mix.Task.run("ex_machina.init")
+      Mix.Tasks.ExMachina.Init.run()
     end
 
     file = File.read!(main_factory_file_path)
