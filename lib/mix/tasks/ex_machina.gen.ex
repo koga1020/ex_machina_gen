@@ -35,8 +35,8 @@ defmodule Mix.Tasks.ExMachina.Gen do
       |> put_assoc_build(schema_module, associations)
       |> inspect(pretty: true, width: :infinity)
       |> String.replace_leading("%{", "%#{schema_string}{")
-      |> String.replace(~r/"build\((.+)\)"/, "build(\\1)")
-      |> String.replace(~r/"\[build\((.+)\)\]"/, "[build(\\1)]")
+      |> String.replace(~r/"build\(([^\)]+)\)"/, "build(\\1)")
+      |> String.replace(~r/"\[build\(([^\)]+)\)\]"/, "[build(\\1)]")
 
     singular = apply(schema_module, :__schema__, [:source]) |> Inflex.singularize()
     module = "#{schema_string}Factory"

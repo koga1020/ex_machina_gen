@@ -13,6 +13,14 @@ defmodule ExMachinaGenTest do
     :ok
   end
 
+  defmodule Blog.User do
+    use Ecto.Schema
+
+    schema "users" do
+      field(:name, :string)
+    end
+  end
+
   defmodule Blog.Post do
     use Ecto.Schema
 
@@ -23,6 +31,7 @@ defmodule ExMachinaGenTest do
       field(:tags, {:array, :string})
       field(:meta, :map)
       field(:order, :integer)
+      belongs_to(:user, Blog.User)
       timestamps()
     end
   end
@@ -72,6 +81,7 @@ defmodule ExMachinaGenTest do
       assert file =~ ~s(order: 1)
       assert file =~ ~s(inserted_at: ~N[2019-01-01 00:00:00])
       assert file =~ ~s(updated_at: ~N[2019-01-01 00:00:00])
+      assert file =~ ~s/user: build(:user)/
     end
   end
 end
