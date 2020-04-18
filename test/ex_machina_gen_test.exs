@@ -13,6 +13,26 @@ defmodule ExMachinaGenTest do
     :ok
   end
 
+  defmodule Blog.EctoType do
+    use Ecto.Type
+
+    def type, do: :string
+
+    def cast(s), do: {:ok, s}
+    def dump(s), do: {:ok, s}
+    def load(s), do: {:ok, s}
+  end
+
+  defmodule Blog.EctoTypeFail do
+    use Ecto.Type
+
+    def type, do: :integer
+
+    def cast(_), do: :error
+    def dump(_), do: :error
+    def load(_), do: :error
+  end
+
   defmodule Blog.Many do
     use Ecto.Schema
 
@@ -47,6 +67,9 @@ defmodule ExMachinaGenTest do
       end
 
       embeds_many(:many, Blog.Many)
+
+      field(:custom, Blog.EctoType)
+      field(:custom_fail, Blog.EctoTypeFail)
 
       timestamps()
     end
@@ -100,6 +123,8 @@ defmodule ExMachinaGenTest do
       assert file =~ ~s/user: build(:user)/
       assert file =~ ~s/one: %{id: nil, name: "test name"}/
       assert file =~ ~s/many: [%{id: 1, name: "test name"}]/
+      assert file =~ ~s(custom: "test custom")
+      assert file =~ ~s(custom_fail: nil)
     end
   end
 end
