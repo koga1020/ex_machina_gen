@@ -1,5 +1,5 @@
 defmodule ExMachinaGenTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: false
 
   @test_tmp_dir "tmp/"
   setup do
@@ -107,6 +107,7 @@ defmodule ExMachinaGenTest do
     test "generate factory file" do
       Mix.Tasks.ExMachina.Gen.run(["ExMachinaGenTest.Blog.Post"])
       main_factory_file = Path.join([@test_tmp_dir, "post_factory.ex"])
+
       assert File.exists?(main_factory_file) == true
 
       file = File.read!(main_factory_file)
@@ -129,6 +130,20 @@ defmodule ExMachinaGenTest do
       assert file =~ ~s/many: [%{id: 1, name: "test name"}]/
       assert file =~ ~s(custom: "test custom")
       assert file =~ ~s(custom_fail: nil)
+    end
+
+    test "generate factory file, with --name" do
+      Mix.Tasks.ExMachina.Gen.run(["ExMachinaGenTest.Blog.Post", "--name", "posting"])
+
+      main_factory_file = Path.join([@test_tmp_dir, "posting_factory.ex"])
+      assert File.exists?(main_factory_file) == true
+
+      file = File.read!(main_factory_file)
+
+      assert file =~ "defmodule ExMachinaGenTest.Blog.PostFactory do"
+      assert file =~ "defmacro __using__(_opts) do"
+      assert file =~ "quote do"
+      assert file =~ "def posting_factory do"
     end
   end
 end

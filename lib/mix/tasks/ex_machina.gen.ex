@@ -6,18 +6,38 @@ defmodule Mix.Tasks.ExMachina.Gen do
 
       mix ex_machina.gen Blog.Post
 
+  ## table
+
+  By default the table name, singularized, will be used as the prefix for the
+  factory method, and filename. To customize this value, a `--name` option may be provided.
+
+      mix ex_machina.gen --name posting Blog.Post
+
+  ## Custom Ecto types
+
+  When a custom `Ecto` type is used in a schema, the generation will attempt to
+  `load` a value of `type`, it this fails a warning will be shown for the field
+  and the value in the factory will be set to `nil`.
+
   """
   use Mix.Task
   alias Mix.ExMachinaGen
 
   def run(args) do
     Mix.Task.run("loadpaths")
+    {opts, parsed} = OptionParser.parse!(args, strict: [name: :string])
 
-    [schema_string] = validate_args(args)
+    [schema_string] = validate_args(parsed)
 
     {schema_module, struct_string} = process_schema(schema_string)
 
-    singular = apply(schema_module, :__schema__, [:source]) |> Inflex.singularize()
+    singular =
+      Keyword.get(
+        opts,
+        :name,
+        apply(schema_module, :__schema__, [:source]) |> Inflex.singularize()
+      )
+
     module = "#{schema_string}Factory"
 
     binding = [
