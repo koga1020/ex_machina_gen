@@ -29,7 +29,7 @@ defmodule ExMachinaGen.MixProject do
   defp deps do
     [
       {:credo, "~> 1.6.3", only: [:dev, :test], runtime: false},
-      {:ecto, "~> 3.7.1", only: [:dev, :test], runtime: false},
+      {:ecto, "~> 3.8.1", only: [:dev, :test], runtime: false},
       {:inflex, "~> 2.1.0"},
       {:ex_doc, ">= 0.0.0", only: :dev}
     ]
