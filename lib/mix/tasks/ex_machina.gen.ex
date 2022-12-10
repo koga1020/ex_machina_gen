@@ -221,7 +221,11 @@ defmodule Mix.Tasks.ExMachina.Gen do
   defp example_val(_, :naive_datetime), do: ~N[2019-01-01 00:00:00]
   defp example_val(_, :naive_datetime_usec), do: ~N[2019-01-01 00:00:00.000000]
 
-  defp example_val(_, {:embed, %Ecto.Embedded{cardinality: cardinality, related: schema}}) do
+  defp example_val(
+         _,
+         {:parameterized, Ecto.Embedded,
+          %Ecto.Embedded{cardinality: cardinality, related: schema}}
+       ) do
     value = process_embedded_schema(schema)
 
     case cardinality do
