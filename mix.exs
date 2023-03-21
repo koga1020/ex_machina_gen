@@ -28,7 +28,7 @@ defmodule ExMachinaGen.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:credo, "~> 1.6.3", only: [:dev, :test], runtime: false},
+      {:credo, "~> 1.7.0", only: [:dev, :test], runtime: false},
       {:ecto, "~> 3.9.2", only: [:dev, :test], runtime: false},
       {:inflex, "~> 2.1.0"},
       {:ex_doc, ">= 0.0.0", only: :dev}
